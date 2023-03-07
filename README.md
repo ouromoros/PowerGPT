@@ -8,6 +8,8 @@ The script is implemented purely in PowerSell and packaged as a PowerShell modul
 Install-Module PowerGPT
 ```
 
+The program will ask input for openai API key on first use. To reset the API key, use `-ResetConfig` option.
+
 ## Usage
 
 Basic Usage:
