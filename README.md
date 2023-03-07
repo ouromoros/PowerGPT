@@ -1,8 +1,8 @@
 ## PowerGPT
 
-A command line helper for providing commands to run given instruction in natural language.
+A command line helper for running commands with aid from GPT model.
 
-The script is packaged as a PowerShell module.
+The script is implemented purely in PowerSell and packaged as a PowerShell module.
 
 ```
 Install-Module PowerGPT
