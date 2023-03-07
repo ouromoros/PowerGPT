@@ -2,7 +2,11 @@
 
 A command line helper for providing commands to run given instruction in natural language.
 
-The script is packaged as a PowerShell module. Copy it to `%UserProfile%\Documents\WindowsPowerShell\Modules` to use on your own machine :)
+The script is packaged as a PowerShell module.
+
+```
+Install-Module PowerGPT
+```
 
 ## Usage
 
