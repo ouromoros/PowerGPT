@@ -1,6 +1,10 @@
 ## PowerGPT
 
-A command line helper for running commands with aid from GPT model.
+`PowerGPT` is a command line helper for doing tasks in PowerShell with help from GPT model.
+
+Writing shell scripts is difficult and boring. This module will help you do common task/batch processing in Windows terminal in seconds without learning all the tricky aspects of PowerShell.
+
+Even for PowerShell experts, typing a few words and let the AI model do the dirty work certainly sounds like a better way to go ;)
 
 The script is implemented purely in PowerSell and packaged as a PowerShell module.
 
