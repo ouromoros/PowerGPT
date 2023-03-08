@@ -1,18 +1,26 @@
-## PowerGPT
+## PowerGPT⚡
 
-`PowerGPT` is a command line helper for doing tasks in PowerShell with help from GPT model.
+Writing shell scripts is difficult and boring. This module will help you do any common task/batch processing in Windows terminal in seconds even if you know nothing about PowerShell. Just type and run `PowerGPT <your task>` like this:
 
-Writing shell scripts is difficult and boring. This module will help you do common task/batch processing in Windows terminal in seconds without learning all the tricky aspects of PowerShell.
+```powershell
+$ PowerGPT "list all files in current folder with created date"
+Will execute script:
+-----
+Get-ChildItem | Select-Object Name, CreationTime
+-----
+```
 
 Even for PowerShell experts, typing a few words and let the AI model do the dirty work certainly sounds like a better way to go ;)
 
 The script is implemented purely in PowerSell and packaged as a PowerShell module.
 
+## Installation
+
 ```
 Install-Module PowerGPT
 ```
 
-**You will need an OpenAI API key to use the program**. The program will ask input for the API key on first use. To reset the API key, use `-ResetConfig` option.
+**You will need an OpenAI API key to use this module**. The command will ask input for the API key on first use. To reset the API key, use `-ResetConfig` option.
 
 ## Usage
 
