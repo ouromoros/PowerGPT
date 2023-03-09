@@ -1,6 +1,8 @@
 ## PowerGPT⚡
 
-Writing shell scripts is difficult and boring. This module will help you do any common task/batch processing in Windows terminal in seconds even if you know nothing about PowerShell. Just type and run `PowerGPT <your task>` like this:
+Writing shell scripts can be difficult and boring. This module will help you do any common task/batch processing in Windows terminal in seconds even if you know nothing about PowerShell.
+
+Just type and run `PowerGPT <your task>` like this and the GPT model will do the rest for you:
 
 ```powershell
 $ PowerGPT "list all files in current folder with created date"
