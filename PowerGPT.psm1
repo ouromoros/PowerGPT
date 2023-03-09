@@ -200,7 +200,7 @@ POWERGPT_START
         }
 
         $FullPromptWithHistory = $FullPrompt + $ResultText + "`nPOWERGPT_END`nUser:`n[$Choice]`nPowerGPT:`nPOWERGPT_START`n"
-        $Result = Send-LlmPrompt -Prompts @($FullPromptWithHistory) -Stop "POWERGPT_END" -Model "text-chat-davinci-002" -Temperature 0 -ErrorAction Stop
+        $Result = Send-LlmPrompt -Prompts @($FullPromptWithHistory) -Stop "POWERGPT_END" -Temperature 0 -ErrorAction Stop -API_KEY $Config.API_KEY
         $ResultText = $Result.choices[0].text.Trim()
     }
 
