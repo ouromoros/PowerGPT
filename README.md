@@ -65,7 +65,7 @@ continue?([y]es, [n]o):
 For complex task, the tool will behave smartly and provide choices for user:
 
 ```powershell
-$ .\PowerGPT.ps1 "print first lines and last lines for each file in current folder"
+$ PowerGPT "print first lines and last lines for each file in current folder"
 The description is too vague, do you mean:
 [0] For each file in current directory, print the first line and then print the last line of the file.
 [1] For each file in current directory, print the first line of the file. After that, for each file, print the last line of the file.
@@ -89,7 +89,7 @@ continue?([y]es, [n]o)
 It's also possible for it to write script using common library in other languages:
 
 ```powershell
-$ .\PowerGPT.ps1 "retrieve AzureDevops artifact for a build" -ShellVariant C#
+$ PowerGPT "retrieve AzureDevops artifact for a build" -ShellVariant C#
 The description is a little vague, do you mean:
 [0] Use AzureDevops REST API to retrieve the artifact for a build.
 [1] Use AzureDevops SDK to retrieve the artifact for a build.
