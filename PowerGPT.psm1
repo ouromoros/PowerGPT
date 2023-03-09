@@ -1,8 +1,8 @@
-function Send-LlmPrompt {
+function Send-LlmPromptChat {
     param (
         [Parameter(Mandatory=$false)]
         [ValidateNotNullOrEmpty()]
-        [string]$Model = "text-davinci-003",
+        [string]$Model = "gpt-3.5-turbo",
         
         [Parameter(Mandatory=$false)]
         [int]$MaxTokens = 400,
@@ -21,7 +21,7 @@ function Send-LlmPrompt {
 
         [Parameter(Mandatory=$true)]
         [ValidateNotNullOrEmpty()]
-        [string[]]$Prompts,
+        [PSCustomObject[]]$Messages,
 
         [Parameter(Mandatory=$false)]
         [ValidateNotNullOrEmpty()]
@@ -30,18 +30,17 @@ function Send-LlmPrompt {
 
     $body = @{
         model = $Model
-        prompt = $Prompts
+        messages = $Messages
         max_tokens = $MaxTokens
         temperature = $Temperature
         top_p = $TopP
         n = $N
         stream = $false
-        logprobs = $null
         stop = $Stop
     }
 
     # Send request to openai completion API
-    $endpoint = "https://api.openai.com/v1/completions"
+    $endpoint = "https://api.openai.com/v1/chat/completions"
     $headers = @{
         "Content-Type"="application/json"
         "Authorization"="Bearer $API_KEY"
@@ -81,6 +80,98 @@ function Read-Configuration {
     return $Config
 }
 
+function Get-PromptMessages {
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]$UserPrompt,
+        [Parameter(Mandatory=$true)]
+        [string]$ShellVariant
+    )
+
+    $SystemPromptContent = "You are a powerful and sophisticated multi-lingual chat bot that generates script given the user's instruction.
+User will describe the task followed by desired response script language. You will respond with a step-by-step explanation of how to construct the script followed by the full script.
+When you cannot interpret user's intention or user's instruction is too vague and can have different imterpretations, you will make inference about user's intention and present them as choices for user.
+When user's message is unrelated to a task, You will respond BEEP.
+You must return a script that matches user's instruction.
+The script must be runnable in script environment.
+The script must be correct and contain no bugs or potential bugs.
+The script must do exactly what the instruction says.
+The script should only use commands that's available in the script environment.
+The script should follow best practice and conform to style guides.
+The script should be the most frequently used one.
+The script should be clear and readable.
+The script should be well documented.
+Your response must only be providing script or choices and should not do both at the same time.
+"
+    $DemoUserMessage0 = "list all files in current directory"
+    $DemoAssitantMessage0 = "
+we use ``Get-ChildItem`` to get all files in current directory.
+``````
+Get-ChildItem
+``````"
+    $DemoUserMessage1 = "what's the weather today?"
+    $DemoAssitantMessage1 = "BEEP"
+    $DemoUserMessage21 = "print first lines and last lines of files in current folder | PowerShell"
+    $DemoAssitantMessage21 = "
+The instruction is unclear, do you mean one of these:
+[0] For each file in current directory, print the first line and then print the last line of the file.
+[1] For each file in current directory, print the first line of the file. After that, for each file, print the last line of the file."
+    $DemoUserMessage22 = "For each file in current directory, print the first line and then print the last line of the file."
+    $DemoAssitantMessage22 = "
+First we use `Get-ChildItem` to get all files in current directory. Then we use `ForEach-Object` to iterate through each file. For each file, we use `Get-Content` to get the first line and the last line of the file. We use `Write-Host` to print the first line and the last line of the file.
+``````
+Get-ChildItem | ForEach-Object {
+    `$file = `$_.FullName
+    Write-Host `"First line of `$file:`"
+    Get-Content `$file -TotalCount 1
+    Write-Host `"Last line of `$file:`"
+    Get-Content `$file -Tail 1
+}
+``````"
+    $DemoUserMessage3 = "列出当前文件夹下所有文件 | Windows PowerShell"
+    $DemoAssitantMessage3 = "
+我们使用``Get-ChildItem``来列出当前文件夹下所有文件。
+``````
+Get-ChildItem
+``````"
+    $DemoUserMessage4 = "extract compressed.tar.gz | Windows PowerShell"
+    $DemoAssitantMessage4 = "
+First we use `Get-Command` to check if the ``tar`` command is available. If not, we use ``Invoke-WebRequest`` to download the ``tar.exe.zip`` file. Then we use ``Expand-Archive`` to extract the ``tar.exe.zip`` file. After that, we add the ``tar`` command to the ``PATH`` environment variable. Finally, we use ``tar`` to extract the ``compressed.tar.gz`` file.
+``````
+# Extract compressed.tar.gz in Windows using PowerShell
+# First, check if the tar command is available
+if (!(Get-Command tar -ErrorAction SilentlyContinue)) {
+    # If not, install the tar command
+    Invoke-WebRequest -Uri ""http://gnuwin32.sourceforge.net/downlinks/tar.exe.zip"" -OutFile ""tar.exe.zip""
+    Expand-Archive -Path ""tar.exe.zip"" -DestinationPath ""`$env:ProgramFiles\GnuWin32""
+    # Add the tar command to the PATH
+    `$env:Path += "";`$env:ProgramFiles\GnuWin32""
+}
+# Extract the compressed.tar.gz file
+tar -xvzf compressed.tar.gz
+``````"
+
+    $UserPromptContent = "$UserPrompt | $ShellVariant"
+
+    $FullPromptMessages = @(
+        @{ "role" = "system"; "content" = $SystemPromptContent },
+        @{ "role" = "user"; "content" = $DemoUserMessage0 },
+        @{ "role" = "assistant"; "content" = $DemoAssitantMessage0.Trim() },
+        @{ "role" = "user"; "content" = $DemoUserMessage1 },
+        @{ "role" = "assistant"; "content" = $DemoAssitantMessage1.Trim() },
+        @{ "role" = "user"; "content" = $DemoUserMessage21 },
+        @{ "role" = "assistant"; "content" = $DemoAssitantMessage21.Trim() },
+        @{ "role" = "user"; "content" = $DemoUserMessage22 },
+        @{ "role" = "assistant"; "content" = $DemoAssitantMessage22.Trim() },
+        @{ "role" = "user"; "content" = $DemoUserMessage3 },
+        @{ "role" = "assistant"; "content" = $DemoAssitantMessage3.Trim() },
+        @{ "role" = "user"; "content" = $DemoUserMessage4 },
+        @{ "role" = "assistant"; "content" = $DemoAssitantMessage4.Trim() },
+        @{ "role" = "user"; "content" = $UserPromptContent }
+    )
+    return $FullPromptMessages
+}
+
 function PowerGPT {
     param (
         [Parameter(Mandatory=$true, Position=0)]
@@ -98,69 +189,17 @@ function PowerGPT {
         [string]$ShellVariant = "Windows PowerShell"
     )
 
-    $FullPrompt = "PowerGPT is a powerful and sophisticated chat bot that generates script given the user's instruction.
-User will describe the task in natural language and PowerGPT will respond with a script.
-When user's message is unrelated to a task, PowerGPT will respond BEEP.
-PowerGPT will return script that matches user's instruction.
-The script must be runnable in script environment.
-The script must be correct and contain no bugs or potential bugs.
-The script must do exactly what the instruction says.
-The script should only use commands that's available in the script environment.
-The script should follow best practice and conform to style guides.
-The script should be the most frequently used one.
-The script should be clear and readable.
-The script should be well documented.
-When PowerGPT cannot interpret user's intention or user's instruction is too vague and can have different imterpretations, PowerGPT will make inference about user's intention and present them as choices for user. The number of choices should not exceed 5. Each choice will be prepended by a serial number. Each choice is a short description of what the user is likely to want to do. Each choice will take one line. User will respond with one number. Then PowerGPT must respond with the script.
-
-Below are some examples of user interacting with PowerGPT. Each interaction between user and PowerGPT will start with INTERACTION_START and the context language user is interested in. The interaction will end with INTERACTION_END. Each response of PowerGPT will start with POWERGPT_START and end with POWERGPT_END.
-
-INTERACTION_START `"Windows PowerShell`"
-User:
-list all files in current directory
-PowerGPT:
-POWERGPT_START
-Get-ChildItem
-POWERGPT_END
-INTERACTION_END
-
-INTERACTION_START `"Windows PowerShell`"
-User:
-print first lines and last lines of files in current folder
-PowerGPT:
-POWERGPT_START
-[0] For each file in current directory, print the first line and then print the last line of the file.
-[1] For each file in current directory, print the first line of the file. After that, for each file, print the last line of the file.
-POWERGPT_END
-User:
-[0]
-PowerGPT:
-POWERGPT_START
-Get-ChildItem | ForEach-Object {
-    `$file = `$_.FullName
-    Write-Host `"First line of `$file:`"
-    Get-Content `$file -TotalCount 1
-    Write-Host `"Last line of `$file:`"
-    Get-Content `$file -Tail 1
-}
-POWERGPT_END
-INTERACTION_END
-
-INTERACTION_START `"$ShellVariant`"
-User:
-$Prompt
-PowerGPT:
-POWERGPT_START
-"
-
     $Config = Read-Configuration -ResetConfig:$ResetConfig
     # We use text-chat-davinci-002 and set temparature to 0
     # Temparature controls "creativeness" according to https://platform.openai.com/docs/api-reference/completions/create
     # We set it to 0 to avoid false results
-    $Result = Send-LlmPrompt -Prompts @($FullPrompt) -Stop "POWERGPT_END" -Temperature 0 -ErrorAction Stop -API_KEY $Config.API_KEY
-    $ResultText = $Result.choices[0].text.Trim() # Response will often contain newline characters, we just trim to remove them
+    $PromptMessages = Get-PromptMessages -UserPrompt $Prompt -ShellVariant $ShellVariant
+    Write-Host ($PromptMessages | ConvertTo-Json)
+    $Result = Send-LlmPromptChat -Messages $PromptMessages -Temperature 0 -ErrorAction Stop -API_KEY $Config.API_KEY
+    $ResultText = $Result.choices[0].message.content.Trim() # Response will often contain newline characters, we just trim to remove them
 
     # Check if response is a script or 
-    if ($ResultText[0] -eq "[" -and $ResultText[1] -le "9" -and $ResultText[1] -ge "0" -and $ResultText[2] -eq "]") {
+    if ($ResultText.StartsWith("Unacknowledged.")) {
         Write-Host "The description is a little vague, do you mean:"
         Write-Host $ResultText
 
@@ -179,9 +218,9 @@ POWERGPT_START
             }
         }
 
-        $FullPromptWithHistory = $FullPrompt + $ResultText + "`nPOWERGPT_END`nUser:`n[$Choice]`nPowerGPT:`nPOWERGPT_START`n"
-        $Result = Send-LlmPrompt -Prompts @($FullPromptWithHistory) -Stop "POWERGPT_END" -Temperature 0 -ErrorAction Stop -API_KEY $Config.API_KEY
-        $ResultText = $Result.choices[0].text.Trim()
+        $PromptMessages.Add(@{ "role" = "user"; "content" = $Opt })
+        $Result = Send-LlmPromptChat -Messages $PromptMessages -Temperature 0 -ErrorAction Stop -API_KEY $Config.API_KEY
+        $ResultText = $Result.choices[0].message.content.Trim()
     }
 
     if ($ResultText -eq "BEEP") {
@@ -189,11 +228,16 @@ POWERGPT_START
         return
     }
 
+    Write-Host $ResultText
+    $startIndex = $ResultText.IndexOf("``````") + 3
+    $endIndex = $ResultText.IndexOf("``````", $startIndex)
+    $ScriptText = $ResultText.SubString($startIndex, $endIndex - $startIndex)
+
     if ($Print -or ($ShellVariant -ne "Windows PowerShell")) {
-        Write-Output $ResultText
+        Write-Output $ScriptText
     } else {
         $Execute = $true
-        Write-Host "Will execute script:`n-----`n$ResultText`n-----"
+        Write-Host "Will execute script:`n-----`n$ScriptText`n-----"
         # Prompt to ask if user wants to continue execute script
         while ($true) {
             $Opt = Read-Host -Prompt "continue?([y]es, [n]o)"
@@ -207,7 +251,7 @@ POWERGPT_START
         }
 
         if ($Execute) {
-            Invoke-Expression $ResultText
+            Invoke-Expression $ScriptText
         }
     }
 }
