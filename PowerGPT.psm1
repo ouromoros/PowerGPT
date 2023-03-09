@@ -1,24 +1,4 @@
 function Send-LlmPrompt {
-    <#
-    .SYNOPSIS
-        Script that sends prompts to Large Language Models via Substrate LLM API.
-
-    .EXAMPLE
-        .\Send-LlmPrompt.ps1 -Prompts @("Once upon a time, a little boy")
-
-        Using the default 'text-davinci-003' model. This will prompt the caller for authentication.
-
-    .EXAMPLE
-        .\Send-LlmPrompt.ps1 -Prompts @("Who is the fastest person on earth?") -Model 'text-chat-davinci-002'
-        
-        Asking a question to ChatGPT model.
-
-    .EXAMPLE
-        .\Send-LlmPrompt.ps1 -Prompts @("Who is the fastest person on earth?") -AccessToken $accessToken
-        
-        Providing an authentication token, which can be retrieved using the another script:
-        PS C:\> $accessToken = .\Get-AccessTokenViaDeviceFlow.ps1
-    #>
     param (
         [Parameter(Mandatory=$false)]
         [ValidateNotNullOrEmpty()]
