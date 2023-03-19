@@ -16,6 +16,13 @@ Even for PowerShell experts, typing a few words and let the AI model do the dirt
 
 The script is implemented purely in PowerSell and packaged as a PowerShell module.
 
+## ChangeLog
+
+### [1.0.3] 2023-03-19
+
+- Add support for `-Chat` operation that uses gpt-3.5-turbo model. Pros: cheaper and faster. Cons: can't produce suggestions like the `text-davinnci-3` model.
+- Fix `Invoke-RestMethod` encoding so that now most languages would work.
+
 ## Installation
 
 ```
