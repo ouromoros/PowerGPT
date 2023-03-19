@@ -23,6 +23,22 @@ The script is implemented purely in PowerSell and packaged as a PowerShell modul
 - Add support for `-Chat` operation that uses gpt-3.5-turbo model. Pros: cheaper and faster. Cons: can't produce suggestions like the `text-davinnci-3` model.
 - Fix `Invoke-RestMethod` encoding so that now most languages would work.
 
+```
+$ PowerGPT -Chat "列出所有文件"
+我们使用`Get-ChildItem`来列出所有文件。
+\```
+Get-ChildItem -Path "C:\" -Recurse -File
+\```
+这将列出C盘下所有文件，包括子文件夹中的文件。如果要列出当前文件夹下的所有文件，可以将`-Path`参数设置为`.`。
+
+Will execute script:
+-----
+
+Get-ChildItem -Path "C:\" -Recurse -File
+
+-----
+```
+
 ## Installation
 
 ```
